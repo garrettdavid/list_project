@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Game
+{% endblock %}
+
+{% block main %}
+
+    {% for game in result %}
+        <p>Name: {{game["name"]}}</p>
+    {% endfor %}
+{% endblock %}

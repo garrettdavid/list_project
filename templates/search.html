@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Search
+{% endblock %}
+
+{% block main %}
+<form action="{{ url_for('search') }}" method="post">
+    <fieldset>
+        <input name="query" placeholder="Search" type="text">
+        <button type="submit">Search</button>
+    </fieldset>
+</form>
+{% endblock %}

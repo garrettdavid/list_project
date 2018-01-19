@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Register
+{% endblock %}
+
+{% block main %}
+<form action="{{ url_for('register') }}" method="post">
+    <fieldset>
+        <input name="username" placeholder="Username" type="text">
+        <input name="password" placeholder="Password" type="password">
+        <input name="password_confirm" placeholder="Confirm Password" type="password">
+        <button type="submit">Submit</button>
+    </fieldset>
+</form>
+{% endblock %}
