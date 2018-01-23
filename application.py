@@ -2,10 +2,11 @@ from flask import Flask, flash, redirect, render_template, request, session, url
 from flask_session import Session
 from passlib.apps import custom_app_context as pwd_context
 from tempfile import mkdtemp
-from igdb_api_python.igdb import igdb
+#from igdb_api_python.igdb import igdb
 import os
 
 from helpers import *
+from mongo import *
 
 # configure application
 app = Flask(__name__)
@@ -25,7 +26,7 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-igdb = igdb(os.environ['IGDB_API_KEY'])
+#igdb = igdb(os.environ['IGDB_API_KEY'])
 
 @app.route("/")
 @login_required
@@ -100,15 +101,18 @@ def register():
 
         # hash password
         hash = pwd_context.hash(request.form.get("password"))
-
+        
+        # create user object
+        user = User(request.form.get("username"), hash)
+        
         # store info in database
-        result = db.execute("INSERT INTO users (username, hash) VALUES (:username, :hash)", username = request.form.get("username"), hash = hash)
+        result = db_insert(user)
 
-        if not result:
-            return apology("username already exists")
+        if not result.acknowledged:
+            return apology("error")
 
         # log user in
-        session["user_id"] = result
+        session["user_id"] = result.inserted_id
 
         #redirect to home page
         return redirect(url_for("index"))
@@ -135,3 +139,5 @@ def search():
     # else if reached via GET
     else:
         return render_template("search.html")
+        
+app.run(host=os.getenv('IP', '0.0.0.0'),port=int(os.getenv('PORT', 8080)))
