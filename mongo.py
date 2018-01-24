@@ -16,6 +16,10 @@ except:
 def db_insert(new_user):
     entry = { "username": new_user.username, "hash": new_user.hash}
     db = client.test_db
-    users = db.users
-    result = users.insert_one(entry)
+    result = db.users.insert_one(entry)
+    return result
+
+def db_search(username):
+    db = client.test_db
+    result = db.users.find_one({"username": username})
     return result

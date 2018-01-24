@@ -52,14 +52,14 @@ def login():
             return apology("must provide password")
 
         # query database for username
-        rows = db.execute("SELECT * FROM users WHERE username = :username", username=request.form.get("username"))
+        result = db_search(request.form.get("username"))
 
         # ensure username exists and password is correct
-        if len(rows) != 1 or not pwd_context.verify(request.form.get("password"), rows[0]["hash"]):
+        if result is None or not pwd_context.verify(request.form.get("password"), result["hash"]):
             return apology("invalid username and/or password")
 
         # remember which user has logged in
-        session["user_id"] = rows[0]["id"]
+        session["user_id"] = result["_id"]
 
         # redirect user to home page
         return redirect(url_for("index"))
