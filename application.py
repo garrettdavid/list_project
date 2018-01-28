@@ -2,8 +2,6 @@ from flask import Flask, flash, redirect, render_template, request, session, url
 from flask_session import Session
 from passlib.apps import custom_app_context as pwd_context
 from tempfile import mkdtemp
-#from igdb_api_python.igdb import igdb
-import os
 
 from helpers import *
 from mongo import *
@@ -25,8 +23,6 @@ app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
-
-#igdb = igdb(os.environ['IGDB_API_KEY'])
 
 @app.route("/")
 @login_required
@@ -127,14 +123,9 @@ def search():
     # if reached via POST
     if request.method == "POST":
 
-        query = request.form.get("query")
-
-        result = igdb.games({
-            'search': query,
-            'fields': "name"
-        })
-
-        return render_template("results.html", result = result.body)
+        query = search_cache(str(request.form.get("query")))
+        
+        return render_template("results.html", result = query)
 
     # else if reached via GET
     else:

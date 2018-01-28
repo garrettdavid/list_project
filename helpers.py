@@ -1,5 +1,12 @@
 from flask import redirect, render_template, request, session, url_for
+from igdb_api_python.igdb import igdb
 from functools import wraps
+import os
+from werkzeug.contrib.cache import SimpleCache
+
+cache = SimpleCache()
+
+igdb = igdb(os.environ['IGDB_API_KEY'])
 
 def apology(top="", bottom=""):
     """Renders message as an apology to user."""
@@ -31,3 +38,16 @@ def login_required(f):
 def usd(value):
     """Formats value as USD."""
     return "${:,.2f}".format(value)
+    
+def search_cache(item):
+    req = cache.get(item)
+    if req is None:
+        req = igdb.games({
+            'search': item,
+            'fields': "name"
+        })
+        cache.set(item, req.body, timeout=5 * 60)
+        return req.body
+    else:
+        return req
+    
