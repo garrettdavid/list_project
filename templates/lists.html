@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+{% block title %}
+My Lists
+{% endblock %}
+
+{% block main %}
+
+    {% for list in lists %}
+        <p>List: {{list["name"]}}</p>
+    {% endfor %}
+    <form action="{{ url_for('lists') }}" method="post">
+    <fieldset>
+        <input name="new_list_name" placeholder="Name" type="text">
+        <button type="submit">Create new list</button>
+    </fieldset>
+</form>
+{% endblock %}

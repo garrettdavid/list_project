@@ -27,6 +27,7 @@
                 <div class="collapse navbar-collapse">
                     {% if session.user_id %}
                     <div class="navbar-nav">
+                        <a class="nav-item nav-link" href="{{ url_for('lists') }}">Lists</a>
                         <a class="nav-item nav-link" href="{{ url_for('search') }}">Search</a>
                         <a class="nav-item nav-link" href="{{ url_for('logout') }}">Log Out</a>
                     </div>

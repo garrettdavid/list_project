@@ -3,6 +3,8 @@ from flask_session import Session
 from passlib.apps import custom_app_context as pwd_context
 from tempfile import mkdtemp
 
+from pymongo.collection import ReturnDocument
+
 from helpers import *
 from mongo import *
 
@@ -49,7 +51,6 @@ def login():
 
         # query database for username
         result = db_search(request.form.get("username"))
-
         # ensure username exists and password is correct
         if result is None or not pwd_context.verify(request.form.get("password"), result["hash"]):
             return apology("invalid username and/or password")
@@ -102,7 +103,7 @@ def register():
         user = User(request.form.get("username"), hash)
         
         # store info in database
-        result = db_insert(user)
+        result = db_insert_user(user)
 
         if not result.acknowledged:
             return apology("error")
@@ -130,5 +131,34 @@ def search():
     # else if reached via GET
     else:
         return render_template("search.html")
+        
+@app.route("/lists", methods=["GET", "POST"])
+@login_required
+def lists():
+    # if reached via POST
+    if request.method == "POST":
+        
+        # get name of new list
+        name = request.form.get("new_list_name")
+        
+        # connect to db and make the new list
+        db = client.test_db
+        result = db.users.find_one_and_update(
+            {"_id": session["user_id"]},
+            { "$push": { "lists": {"name": name} }},
+            projection={"lists": True},
+            return_document=ReturnDocument.AFTER)
+            
+        return render_template("lists.html", lists = result["lists"])
+
+    # else if reached via GET
+    else:
+        
+        # query database for existing lists and return them for display
+        db = client.test_db
+        result = db.users.find_one(
+            {"_id": session["user_id"]},
+            projection={"lists": True})
+        return render_template("lists.html", lists = result["lists"])
         
 app.run(host=os.getenv('IP', '0.0.0.0'),port=int(os.getenv('PORT', 8080)))
