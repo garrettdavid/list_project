@@ -7,6 +7,18 @@ Search Results
 {% block main %}
 
     {% for game in result %}
-        <p>Name: {{game["name"]}}</p>
+        <form id="45149" action="{{ url_for('add') }}" method="post">
+            <input type="hidden" name='{{game["id"]}}' value='{{game["name"]}}'>
+            <span>Name: {{game["name"]}}</span>
+            <select multiple name="lists">
+                <!--<option>Default List</option>-->
+                
+                {% for item in lists %}
+                    <option value='{{item["name"]}}'>{{item["name"]}}</option>
+                {% endfor %}
+                
+            </select>
+            <button type="submit">Add to list</button>
+        </form>
     {% endfor %}
 {% endblock %}

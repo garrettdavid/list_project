@@ -5,9 +5,14 @@ My Lists
 {% endblock %}
 
 {% block main %}
-
+    
     {% for list in lists %}
         <p>List: {{list["name"]}}</p>
+        <ul>
+        {%for item in list.get("items") %}
+        <li>{{item["name"]}}</li>
+        {% endfor %}
+        </ul>
     {% endfor %}
     <form action="{{ url_for('lists') }}" method="post">
     <fieldset>

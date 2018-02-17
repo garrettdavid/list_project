@@ -123,10 +123,12 @@ def register():
 def search():
     # if reached via POST
     if request.method == "POST":
-
+        
+        # check if query is already cached. request is sent automatically if not in cache
         query = search_cache(str(request.form.get("query")))
         
-        return render_template("results.html", result = query)
+        lists = db_get_lists(session["user_id"])
+        return render_template("results.html", result = query, lists = lists["lists"])
 
     # else if reached via GET
     else:
@@ -145,20 +147,46 @@ def lists():
         db = client.test_db
         result = db.users.find_one_and_update(
             {"_id": session["user_id"]},
-            { "$push": { "lists": {"name": name} }},
+            {"$push": { "lists": {"name": name, "items": []}}},
             projection={"lists": True},
             return_document=ReturnDocument.AFTER)
-            
         return render_template("lists.html", lists = result["lists"])
 
     # else if reached via GET
     else:
         
         # query database for existing lists and return them for display
-        db = client.test_db
-        result = db.users.find_one(
-            {"_id": session["user_id"]},
-            projection={"lists": True})
+        result = db_get_lists(session["user_id"])
+        print(result)
         return render_template("lists.html", lists = result["lists"])
+
+@app.route("/add", methods=["POST"])
+@login_required
+def add():
+    # if reached via POST
+    if request.method == "POST":
+        
+        # get list and item info from request
+        req = request.form.copy()
+        list_arr = req.poplist("lists")
+        game = req.popitem()
+        
+        # find the list(s) and add info
+        db = client.test_db
+        for name in list_arr:
+            result = db.users.find_one_and_update(
+                {"_id": session["user_id"]},
+                {"$push": { "lists.$[t].items": {"id": game[0], "name": game[1]}}},
+                projection={"lists": True},
+                return_document=ReturnDocument.AFTER,
+                arrayFilters=[{"t.name": name}])
+            
+        # redirect user to lists
+        return redirect(url_for("lists"))
+        
+    # else if reached via GET
+    else:
+        # redirect user to home page
+        return redirect(url_for("index"))
         
 app.run(host=os.getenv('IP', '0.0.0.0'),port=int(os.getenv('PORT', 8080)))

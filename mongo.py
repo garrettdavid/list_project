@@ -23,6 +23,9 @@ def db_search(username):
     result = db.users.find_one({"username": username})
     return result
 
-#def db_newlist(list_name):
-#    db = client.test_db
-#    result = db.users.find_one({"_id": session["user_id"]})
+def db_get_lists(user_id):
+    db = client.test_db
+    result = db.users.find_one(
+        {"_id": user_id},
+        projection={"lists": True})
+    return result
