@@ -139,25 +139,67 @@ def search():
 def lists():
     # if reached via POST
     if request.method == "POST":
-        
-        # get name of new list
-        name = request.form.get("new_list_name")
-        
-        # connect to db and make the new list
-        db = client.test_db
-        result = db.users.find_one_and_update(
-            {"_id": session["user_id"]},
-            {"$push": { "lists": {"name": name, "items": []}}},
-            projection={"lists": True},
-            return_document=ReturnDocument.AFTER)
-        return render_template("lists.html", lists = result["lists"])
+        print(request.form)
+        if request.form.get("rename_list"):
+            # get new name of list and location in arr
+            new_name = request.form.get("new_name")
+            list_loc = request.form.get("list_location")
+            
+            # connect to db and rename the list
+            db = client.test_db
+            result = db.users.find_one_and_update(
+                {"_id": session["user_id"]},
+                {"$set": {"lists." + list_loc + ".name": new_name}},
+                projection={"lists": True},
+                return_document=ReturnDocument.AFTER)
+            return render_template("lists.html", lists = result["lists"])
+            
+        elif request.form.get("delete_item"):
+            # get name of item to delete and list to delete from
+            item_name = request.form.get("delete_item")
+            list_name = request.form.get("list_name")
+            
+            # connect to db and delete the item
+            db = client.test_db
+            result = db.users.find_one_and_update(
+                {"_id": session["user_id"], "lists.name": list_name},
+                {"$pull": {"lists.$.items": {"name": item_name}}},
+                projection={"lists": True},
+                return_document=ReturnDocument.AFTER)
+            print(result)
+            return render_template("lists.html", lists = result["lists"])
+            
+        elif request.form.get("delete_list"):
+            # get name of list to delete
+            name = request.form.get("delete_list")
+            
+            # connect to db and delete the list
+            db = client.test_db
+            result = db.users.find_one_and_update(
+                {"_id": session["user_id"]},
+                {"$pull": { "lists": {"name": name}}},
+                projection={"lists": True},
+                return_document=ReturnDocument.AFTER)
+            return render_template("lists.html", lists = result["lists"])
+            
+        elif request.form.get("new_list_name"):
+            # get name of new list
+            name = request.form.get("new_list_name")
+            
+            # connect to db and make the new list
+            db = client.test_db
+            result = db.users.find_one_and_update(
+                {"_id": session["user_id"]},
+                {"$push": { "lists": {"name": name, "items": []}}},
+                projection={"lists": True},
+                return_document=ReturnDocument.AFTER)
+            return render_template("lists.html", lists = result["lists"])
 
     # else if reached via GET
     else:
         
         # query database for existing lists and return them for display
         result = db_get_lists(session["user_id"])
-        print(result)
         return render_template("lists.html", lists = result["lists"])
 
 @app.route("/add", methods=["POST"])
