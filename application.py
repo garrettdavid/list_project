@@ -51,6 +51,7 @@ def login():
 
         # query database for username
         result = db_search(request.form.get("username"))
+        
         # ensure username exists and password is correct
         if result is None or not pwd_context.verify(request.form.get("password"), result["hash"]):
             return apology("invalid username and/or password")
@@ -95,6 +96,11 @@ def register():
         # ensure password and password_confirm match
         elif request.form.get("password") != request.form.get("password_confirm"):
             return apology("passwords do not match")
+            
+        # query database for username and check db for eligibility
+        result = db_search(request.form.get("username"))
+        if result != None:
+            return apology("username already exists")
 
         # hash password
         hash = pwd_context.hash(request.form.get("password"))
@@ -139,7 +145,6 @@ def search():
 def lists():
     # if reached via POST
     if request.method == "POST":
-        print(request.form)
         if request.form.get("rename_list"):
             # get new name of list and location in arr
             new_name = request.form.get("new_name")
@@ -166,7 +171,6 @@ def lists():
                 {"$pull": {"lists.$.items": {"name": item_name}}},
                 projection={"lists": True},
                 return_document=ReturnDocument.AFTER)
-            print(result)
             return render_template("lists.html", lists = result["lists"])
             
         elif request.form.get("delete_list"):
@@ -185,6 +189,8 @@ def lists():
         elif request.form.get("new_list_name"):
             # get name of new list
             name = request.form.get("new_list_name")
+            if name == " ":
+                return apology("Name cannot be blank")
             
             # connect to db and make the new list
             db = client.test_db

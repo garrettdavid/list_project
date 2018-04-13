@@ -12,13 +12,13 @@ My Lists
                 <input name="rename_list" type="hidden" value="{{list['name']}}">
                 <input name="list_location" type="hidden" value="{{loop.index0}}">
                 <input name="new_name" placeholder="New Name" type="text">
-                <button type="submit">Rename List</button>
+                <button class="btn btn-primary" type="submit">Rename List</button>
             </fieldset>
         </form>
         <form action="{{ url_for('lists') }}" method="post">
             <fieldset>
                 <input name="delete_list" type="hidden" value="{{list['name']}}">
-                <button type="submit">Delete List</button>
+                <button class="btn btn-danger" type="submit">Delete List</button>
             </fieldset>
         </form>
         <ul>
@@ -29,7 +29,7 @@ My Lists
                     <input name="delete_item" type="hidden" value="{{item['name']}}">
                     <input name="item_location" type="hidden" value="{{loop.index0}}">
                     <input name="list_name" type="hidden" value="{{list['name']}}">
-                    <button type="submit">Delete Item</button>
+                    <button class="btn btn-danger" type="submit">Delete Item</button>
                 </fieldset>
                 </form>
             </li>
@@ -41,7 +41,7 @@ My Lists
     <form action="{{ url_for('lists') }}" method="post">
         <fieldset>
             <input name="new_list_name" placeholder="Name" type="text">
-            <button type="submit">Create new list</button>
+            <button class="btn btn-primary" type="submit">Create new list</button>
         </fieldset>
     </form>
 {% endblock %}
