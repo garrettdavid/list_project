@@ -21,16 +21,17 @@ My Lists
                 <button class="btn btn-danger" type="submit">Delete List</button>
             </fieldset>
         </form>
-        <ul>
+        <ul class="list-group">
         {% for item in list.get("items") %}
-            <li>{{item["name"]}}
+            <li class="d-flex justify-content-between list-group-item ">
+                <span class="align-self-center">{{item["name"]}}</span>
                 <form action="{{ url_for('lists') }}" method="post">
-                <fieldset>
-                    <input name="delete_item" type="hidden" value="{{item['name']}}">
-                    <input name="item_location" type="hidden" value="{{loop.index0}}">
-                    <input name="list_name" type="hidden" value="{{list['name']}}">
-                    <button class="btn btn-danger" type="submit">Delete Item</button>
-                </fieldset>
+                    <fieldset>
+                        <input name="delete_item" type="hidden" value="{{item['name']}}">
+                        <input name="item_location" type="hidden" value="{{loop.index0}}">
+                        <input name="list_name" type="hidden" value="{{list['name']}}">
+                        <button class="btn btn-danger" type="submit">Delete</button>
+                    </fieldset>
                 </form>
             </li>
         {% endfor %}
